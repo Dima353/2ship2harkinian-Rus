@@ -7596,8 +7596,8 @@ void Interface_UpdatePerfectLettersType1(PlayState* play) {
 s16 sPerfectLettersType2SpellingOffsetsX[PERFECT_LETTERS_NUM_LETTERS] = {
     76,  // P
     51,  // E
-    26,  // R
-    -1,  // F
+    29,  // R
+    -1,   // F
     -25, // E
     -49, // C
     -75, // T
@@ -7767,10 +7767,10 @@ void Interface_UpdatePerfectLettersType2(PlayState* play) {
 
 // Targets to offset each letter to properly spell "PERFECT!"
 s16 sPerfectLettersType3SpellingOffsetsX[PERFECT_LETTERS_NUM_LETTERS] = {
-     76,  // P
+    76,  // P
     51,  // E
     26,  // R
-    -1,  // F
+    -1,   // F
     -25, // E
     -49, // C
     -75, // T

@@ -77,23 +77,23 @@ void Message_LoadPluralRupeesNES(PlayState* play, s16* decodedBufPos, s32* offse
 
     msgCtx->decodedBuffer.schar[p] = ' ';
     p++;
-    Font_LoadCharNES(play, '\x70', o);  // р
+    Font_LoadCharNES(play, '\x70', o);
     o += FONT_CHAR_TEX_SIZE;
     msgCtx->decodedBuffer.schar[p] = '\x70';
     p++;
-    Font_LoadCharNES(play, '\x79', o);  // у
+    Font_LoadCharNES(play, '\x79', o);
     o += FONT_CHAR_TEX_SIZE;
     msgCtx->decodedBuffer.schar[p] = '\x79';
     p++;
-    Font_LoadCharNES(play, '\xa3', o);  // п
+    Font_LoadCharNES(play, '\xa3', o);
     o += FONT_CHAR_TEX_SIZE;
     msgCtx->decodedBuffer.schar[p] = '\xa3';
     p++;
-    Font_LoadCharNES(play, '\x9d', o);  // и
+    Font_LoadCharNES(play, '\x9d', o);
     o += FONT_CHAR_TEX_SIZE;
     msgCtx->decodedBuffer.schar[p] = '\x9d';
     p++;
-    Font_LoadCharNES(play, '\x9e', o);  // й
+    Font_LoadCharNES(play, '\x9e', o);
     o += FONT_CHAR_TEX_SIZE;
     msgCtx->decodedBuffer.schar[p] = '\x9e';
 
@@ -162,15 +162,15 @@ void Message_LoadRupeesNES(PlayState* play, s16* decodedBufPos, s32* offset, f32
     o += FONT_CHAR_TEX_SIZE;
     msgCtx->decodedBuffer.schar[p] = 'y';
     p++;
-    Font_LoadCharNES(play, '\xa3', o);  // п
+    Font_LoadCharNES(play, '\xa3', o);
     o += FONT_CHAR_TEX_SIZE;
     msgCtx->decodedBuffer.schar[p] = '\xa3';
     p++;
-    Font_LoadCharNES(play, '\x9d', o);  // и
+    Font_LoadCharNES(play, '\x9d', o);
     o += FONT_CHAR_TEX_SIZE;
     msgCtx->decodedBuffer.schar[p] = '\x9d';
-
-    char r1 = singular % 100; 
+	
+	char r1 = singular % 100; 
     char r2 = singular % 10;
     unsigned char suffix;
     if (r1 > 10 && r1 < 20) {
@@ -1381,35 +1381,32 @@ void Message_DecodeNES(PlayState* play) {
                 }
             }
 
-            decodedBufPos--;
-            /*if ((Inventory_GetSkullTokenCount(play->sceneId) == 1) ||
-                (Inventory_GetSkullTokenCount(play->sceneId) == 21)) {
-                Message_LoadCharNES(play, '\x2d', &charTexIndex, &spA4, decodedBufPos);
+            if ((gSaveContext.save.saveInfo.inventory.strayFairies[(void)0, gSaveContext.dungeonSceneSharedIndex] ==
+                 1) ||
+                (gSaveContext.save.saveInfo.inventory.strayFairies[(void)0, gSaveContext.dungeonSceneSharedIndex] ==
+                 21)) {
+                Message_LoadCharNES(play, 's', &charTexIndex, &spA4, decodedBufPos);
                 decodedBufPos++;
-                Message_LoadCharNES(play, '\xab', &charTexIndex, &spA4, decodedBufPos);
+                Message_LoadCharNES(play, 't', &charTexIndex, &spA4, decodedBufPos);
+            } else if ((gSaveContext.save.saveInfo.inventory
+                            .strayFairies[(void)0, gSaveContext.dungeonSceneSharedIndex] == 2) ||
+                       (gSaveContext.save.saveInfo.inventory
+                            .strayFairies[(void)0, gSaveContext.dungeonSceneSharedIndex] == 22)) {
+                Message_LoadCharNES(play, 'n', &charTexIndex, &spA4, decodedBufPos);
                 decodedBufPos++;
-                Message_LoadCharNES(play, '\x9e', &charTexIndex, &spA4, decodedBufPos);
-            } else if ((Inventory_GetSkullTokenCount(play->sceneId) == 2) ||
-                       (Inventory_GetSkullTokenCount(play->sceneId) == 22)) {
-                Message_LoadCharNES(play, '\x2d', &charTexIndex, &spA4, decodedBufPos);
+                Message_LoadCharNES(play, 'd', &charTexIndex, &spA4, decodedBufPos);
+            } else if ((gSaveContext.save.saveInfo.inventory
+                            .strayFairies[(void)0, gSaveContext.dungeonSceneSharedIndex] == 3) ||
+                       (gSaveContext.save.saveInfo.inventory
+                            .strayFairies[(void)0, gSaveContext.dungeonSceneSharedIndex] == 23)) {
+                Message_LoadCharNES(play, 'r', &charTexIndex, &spA4, decodedBufPos);
                 decodedBufPos++;
-                Message_LoadCharNES(play, '\x6f', &charTexIndex, &spA4, decodedBufPos);
-                decodedBufPos++;
-                Message_LoadCharNES(play, '\x9e', &charTexIndex, &spA4, decodedBufPos);
-            } else if ((Inventory_GetSkullTokenCount(play->sceneId) == 3) ||
-                       (Inventory_GetSkullTokenCount(play->sceneId) == 23)) {
-                Message_LoadCharNES(play, '\x2d', &charTexIndex, &spA4, decodedBufPos);
-                decodedBufPos++;
-                Message_LoadCharNES(play, '\x9d', &charTexIndex, &spA4, decodedBufPos);
-                decodedBufPos++;
-                Message_LoadCharNES(play, '\x9e', &charTexIndex, &spA4, decodedBufPos);
+                Message_LoadCharNES(play, 'd', &charTexIndex, &spA4, decodedBufPos);
             } else {
-                Message_LoadCharNES(play, '\x2d', &charTexIndex, &spA4, decodedBufPos);
+                Message_LoadCharNES(play, 't', &charTexIndex, &spA4, decodedBufPos);
                 decodedBufPos++;
-                Message_LoadCharNES(play, '\xab', &charTexIndex, &spA4, decodedBufPos);
-                decodedBufPos++;
-                Message_LoadCharNES(play, '\x9e', &charTexIndex, &spA4, decodedBufPos);
-            }*/
+                Message_LoadCharNES(play, 'h', &charTexIndex, &spA4, decodedBufPos);
+            }
         } else if (curChar == MESSAGE_TOKENS) {
             digits[0] = digits[1] = 0;
             digits[2] = Inventory_GetSkullTokenCount(play->sceneId);
@@ -1433,35 +1430,28 @@ void Message_DecodeNES(PlayState* play) {
                     decodedBufPos++;
                 }
             }
+			decodedBufPos--;
 
-            decodedBufPos--;
-            /*msgCtx->decodedBuffer.schar[decodedBufPos] = ' ';
-							
-																				
-            decodedBufPos++;
-            Message_LoadCharNES(play, '\xa7', &charTexIndex, &spA4, decodedBufPos); // ч
-            decodedBufPos++;
-            Message_LoadCharNES(play, '\x61', &charTexIndex, &spA4, decodedBufPos); // а
-            decodedBufPos++;
-            Message_LoadCharNES(play, '\x63', &charTexIndex, &spA4, decodedBufPos); // с
-            
-            char r2 = digits[1];
-            char r1 = digits[0]*10+r2;
-            if (r1 > 10 && r1 < 20) {
+            /*if ((Inventory_GetSkullTokenCount(play->sceneId) == 1) ||
+                (Inventory_GetSkullTokenCount(play->sceneId) == 21)) {
+                Message_LoadCharNES(play, 's', &charTexIndex, &spA4, decodedBufPos);
                 decodedBufPos++;
-                Message_LoadCharNES(play, '\x6f', &charTexIndex, &spA4, decodedBufPos); // о
+                Message_LoadCharNES(play, 't', &charTexIndex, &spA4, decodedBufPos);
+            } else if ((Inventory_GetSkullTokenCount(play->sceneId) == 2) ||
+                       (Inventory_GetSkullTokenCount(play->sceneId) == 22)) {
+                Message_LoadCharNES(play, 'n', &charTexIndex, &spA4, decodedBufPos);
                 decodedBufPos++;
-                Message_LoadCharNES(play, '\x97', &charTexIndex, &spA4, decodedBufPos); // в
-            } else if (r2 > 1 && r2 < 5) {
+                Message_LoadCharNES(play, 'd', &charTexIndex, &spA4, decodedBufPos);
+            } else if ((Inventory_GetSkullTokenCount(play->sceneId) == 3) ||
+                       (Inventory_GetSkullTokenCount(play->sceneId) == 23)) {
+                Message_LoadCharNES(play, 'r', &charTexIndex, &spA4, decodedBufPos);
                 decodedBufPos++;
-                Message_LoadCharNES(play, '\x61', &charTexIndex, &spA4, decodedBufPos); // а
-            } else if (r2 != 1) {
+                Message_LoadCharNES(play, 'd', &charTexIndex, &spA4, decodedBufPos);
+            } else {
+                Message_LoadCharNES(play, 't', &charTexIndex, &spA4, decodedBufPos);
                 decodedBufPos++;
-                Message_LoadCharNES(play, '\x6f', &charTexIndex, &spA4, decodedBufPos); // о
-                decodedBufPos++;
-                Message_LoadCharNES(play, '\x97', &charTexIndex, &spA4, decodedBufPos); // в
+                Message_LoadCharNES(play, 'h', &charTexIndex, &spA4, decodedBufPos);
             }*/
-            }
         } else if (curChar == MESSAGE_POINTS_TENS) {
             digits[0] = 0;
             digits[1] = gSaveContext.minigameScore;
@@ -1748,7 +1738,9 @@ void Message_DecodeNES(PlayState* play) {
                     decodedBufPos++;
                 }
             }
-            msgCtx->decodedBuffer.schar[decodedBufPos] = ' ';
+			decodedBufPos--;
+			
+            /*msgCtx->decodedBuffer.schar[decodedBufPos] = ' ';
             decodedBufPos++;
             Message_LoadCharNES(play, 'h', &charTexIndex, &spA4, decodedBufPos);
             decodedBufPos++;
@@ -1760,7 +1752,7 @@ void Message_DecodeNES(PlayState* play) {
             if ((digits[0] != 0) || (digits[1] != 1)) {
                 decodedBufPos++;
                 Message_LoadCharNES(play, 's', &charTexIndex, &spA4, decodedBufPos);
-            }
+            }*/
         } else if (curChar == MESSAGE_TIME_UNTIL_NEW_DAY) {
             Message_LoadTimeNES(play, curChar, &charTexIndex, &spA4, &decodedBufPos);
         } else if ((curChar == MESSAGE_HS_POINTS_BANK_RUPEES) || (curChar == MESSAGE_HS_POINTS_UNK_1) ||
