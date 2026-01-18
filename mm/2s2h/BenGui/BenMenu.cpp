@@ -114,6 +114,13 @@ static const std::vector<const char*> timeStopOptions = {
     "Temples + Mini Dungeons", // TIME_STOP_TEMPLES_DUNGEONS
 };
 
+static const std::vector<const char*> speedModifierModeOptions = {
+    "Off",
+    "On",
+    "Hold Buttons",
+    "Toggle Buttons",
+};
+
 static const std::vector<const char*> notificationPosition = {
     "Top Left", "Top Right", "Bottom Left", "Bottom Right", "Hidden",
 };
@@ -200,6 +207,9 @@ WidgetInfo& BenMenu::AddWidget(WidgetPath& pathInfo, std::string widgetName, Wid
         case WIDGET_SLIDER_FLOAT:
         case WIDGET_CVAR_SLIDER_FLOAT:
             widget.options = std::make_shared<FloatSliderOptions>();
+            break;
+        case WIDGET_CVAR_BTN_SELECTOR:
+            widget.options = std::make_shared<BtnSelectorOptions>();
             break;
         case WIDGET_SLIDER_INT:
         case WIDGET_CVAR_SLIDER_INT:
@@ -340,6 +350,9 @@ void BenMenu::AddSettings() {
         .CVar("gEnhancements.Mods.AlternateAssetsHotkey")
         .Options(
             CheckboxOptions().Tooltip("Allows pressing the Tab key to toggle alternate assets.").DefaultValue(true));
+    AddWidget(path, "Reset Button Combination:", WIDGET_CVAR_BTN_SELECTOR)
+        .CVar("gSettings.ResetBtn")
+        .Options(BtnSelectorOptions().DefaultValue(BTN_CUSTOM_MODIFIER2));
     AddWidget(path, "Open App Files Folder", WIDGET_BUTTON)
         .Callback([](WidgetInfo& info) {
             std::string filesPath = Ship::Context::GetInstance()->GetAppDirectoryPath();
@@ -880,7 +893,7 @@ void BenMenu::AddEnhancements() {
                      .Max(3.0f));
 
     path = { "Enhancements", "Cheats", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", "Cheats", 3);
+    AddSidebarEntry("Enhancements", "Cheats", 2);
     AddWidget(path, "Infinite Health", WIDGET_CVAR_CHECKBOX)
         .CVar("gCheats.InfiniteHealth")
         .Options(CheckboxOptions().Tooltip("Always have full Hearts."));
@@ -933,6 +946,20 @@ void BenMenu::AddEnhancements() {
                          "- Temples + Mini Dungeons: In addition to the above temples, stops time in both Spider "
                          "Houses, Pirate's Fortress, Beneath the Well, Ancient Castle of Ikana, and Secret Shrine.")
                 .ComboVec(&timeStopOptions));
+
+    path.column = SECTION_COLUMN_2;
+    AddWidget(path, "Speed Modifier", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Speed Modifier Mode", WIDGET_CVAR_COMBOBOX)
+        .CVar("gCheats.SpeedModifier.Mode")
+        .Options(ComboboxOptions().ComboVec(&speedModifierModeOptions).LabelPosition(LabelPosition::None));
+    AddWidget(path, "Multiplier:", WIDGET_CVAR_SLIDER_FLOAT)
+        .CVar("gCheats.SpeedModifier.Value")
+        .PreFunc([](WidgetInfo& info) { info.isHidden = !CVarGetInteger("gCheats.SpeedModifier.Mode", 0); })
+        .Options(FloatSliderOptions().Format("%.1fx").Min(0.0f).Max(6.0f).DefaultValue(1.0f));
+    AddWidget(path, "Button Combination:", WIDGET_CVAR_BTN_SELECTOR)
+        .CVar("gCheats.SpeedModifier.Btn")
+        .Options(BtnSelectorOptions().DefaultValue(BTN_CUSTOM_MODIFIER1))
+        .PreFunc([](WidgetInfo& info) { info.isHidden = CVarGetInteger("gCheats.SpeedModifier.Mode", 0) < 2; });
 
     //// Gameplay Enhancements
     path = { "Enhancements", "Gameplay", SECTION_COLUMN_1 };
@@ -1252,6 +1279,10 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Fast Transformation", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Masks.FastTransformation")
         .Options(CheckboxOptions().Tooltip("Removes the delay when using transformation masks."));
+    AddWidget(path, "3DS Style Mask Equipping", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Masks.3DSMaskEquip")
+        .Options(CheckboxOptions().Tooltip("Allows equipping masks while in other forms, returning you to human form "
+                                           "with the mask immediately equipped, like in MM3D."));
     AddWidget(path, "Fierce Deity's Mask Anywhere", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Masks.FierceDeitysAnywhere")
         .Options(CheckboxOptions().Tooltip("Allow using Fierce Deity's mask outside of boss rooms."));
@@ -1601,6 +1632,10 @@ void BenMenu::AddEnhancements() {
                      .Min(1)
                      .Max(50)
                      .DefaultValue(50));
+    AddWidget(path, "Randomize Shooting Gallery Octoroks", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Minigames.RandomizeShootingGalleryOctoroks")
+        .Options(CheckboxOptions().Tooltip("Randomizes the positions of Octoroks in the Town Shooting Gallery minigame "
+                                           "each time they appear."));
     AddWidget(path, "Swamp Archery Perfect Score", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.Minigames.SwampArcheryScore")
         .Options(IntSliderOptions()
@@ -1754,13 +1789,6 @@ void BenMenu::AddEnhancements() {
                      .Tooltip("Enables the Cosmetic Editor window, allowing you to modify various colors in the game.")
                      .Size(Sizes::Inline));
 
-    // Item Tracker Settings
-    path = { "Enhancements", "Item Tracker", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", "Item Tracker", 1);
-    AddWidget(path, "Popout Settings", WIDGET_WINDOW_BUTTON)
-        .CVar("gWindows.ItemTrackerSettings")
-        .WindowName("Item Tracker Settings");
-
     // Timesplit Settings
     path = { "Enhancements", "Time Splits", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Time Splits", 1);
@@ -1794,6 +1822,14 @@ void BenMenu::AddDevTools() {
         .CVar("gDeveloperTools.BetterMapSelect.Enabled")
         .Options(CheckboxOptions().Tooltip(
             "Overrides the original map select with a translated, more user-friendly version."))
+        .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
+    AddWidget(path, "Map Select Button Combination:", WIDGET_CVAR_BTN_SELECTOR)
+        .CVar("gDeveloperTools.MapSelectBtn")
+        .Options(BtnSelectorOptions().DefaultValue(BTN_R | BTN_L | BTN_Z))
+        .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
+    AddWidget(path, "No Clip Button Combination:", WIDGET_CVAR_BTN_SELECTOR)
+        .CVar("gDeveloperTools.NoClipBtn")
+        .Options(BtnSelectorOptions().DefaultValue(BTN_L | BTN_DRIGHT))
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Debug Save File Mode", WIDGET_CVAR_COMBOBOX)
         .CVar("gDeveloperTools.DebugSaveFileMode")
