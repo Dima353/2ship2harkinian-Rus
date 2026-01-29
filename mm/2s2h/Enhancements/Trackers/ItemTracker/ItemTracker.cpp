@@ -5,7 +5,7 @@
 #include "Rando/Rando.h"
 #include "Rando/ActorBehavior/Souls.h"
 #include "Rando/MiscBehavior/ClockShuffle.h"
-
+#include "2s2h/BenPort.h"
 #include "2s2h/ShipUtils.h"
 #include <spdlog/fmt/fmt.h>
 
@@ -25,9 +25,16 @@ extern std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
 
 #define FORMAT_COUNT "{}/{}"
 
+#define CVAR_NAME_VISIBILITY_MODE "gSettings.ItemTracker.VisibilityMode"
+#define CVAR_NAME_VISIBILITY_BTN "gSettings.ItemTracker.VisibilityBtn"
+#define CVAR_VISIBILITY_MODE CVarGetInteger(CVAR_NAME_VISIBILITY_MODE, ITEM_TRACKER_VISIBILITY_MODE_ALWAYS)
+#define CVAR_VISIBILITY_BTN CVarGetInteger(CVAR_NAME_VISIBILITY_BTN, BTN_CUSTOM_MODIFIER1)
+
 std::vector<TrackerGroup> itemTrackerGroups;
+static bool sItemTrackerBtnState = false;
 
 TrackerImageObject GetImageObject(TrackerItemType itemType, u32 itemId) {
+    bool isSaveLoaded = gPlayState != NULL && gSaveContext.gameMode == GAMEMODE_NORMAL;
     bool itemObtained = false;
     TrackerImageObject trackerImageObject = {
         .textureColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f),
@@ -72,24 +79,30 @@ TrackerImageObject GetImageObject(TrackerItemType itemType, u32 itemId) {
                     itemObtained =
                         gSaveContext.save.saveInfo.inventory.strayFairies[DUNGEON_SCENE_INDEX_STONE_TOWER_TEMPLE] > 0;
                 } break;
+                case RI_TRIFORCE_PIECE: {
+                    itemObtained = gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces > 0;
+                } break;
                 default: {
                     itemObtained = !Rando::IsItemObtainable(randoItemId);
                 } break;
             }
 
             trackerImageObject.textureColor = Ship_GetRandoItemColorTint(randoItemId);
-            trackerImageObject.textureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-                Rando::StaticData::GetIconTexturePath(randoItemId));
+            const char* texturePath = Rando::StaticData::GetIconTexturePath(randoItemId);
+            if (texturePath != nullptr) {
+                trackerImageObject.textureId =
+                    Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(texturePath);
+            }
             if (randoItemId >= RI_OWL_CLOCK_TOWN_SOUTH && randoItemId <= RI_OWL_ZORA_CAPE) {
                 trackerImageObject.textureDimensions.y = 24.0f;
-            } else if (randoItemId >= RI_SONG_ELEGY && randoItemId <= RI_SONG_TIME) {
+            } else if (randoItemId >= RI_SONG_DOUBLE_TIME && randoItemId <= RI_SONG_TIME) {
                 trackerImageObject.textureDimensions.x = 32.0f;
             }
         } break;
         case TRACKER_ITEM_SLOT: {
             itemObtained = gSaveContext.save.saveInfo.inventory.items[itemId] != ITEM_NONE;
-            auto vanillaItemId = gSaveContext.save.saveInfo.inventory.items[itemId];
-            if (vanillaItemId == ITEM_NONE) {
+            auto vanillaItemId = isSaveLoaded ? gSaveContext.save.saveInfo.inventory.items[itemId] : ITEM_NONE;
+            if (vanillaItemId == ITEM_NONE || vanillaItemId >= ITEM_RECOVERY_HEART) {
                 vanillaItemId = safeItemsForInventorySlot[itemId][0];
             }
 
@@ -148,6 +161,10 @@ TrackerImageObject GetImageObject(TrackerItemType itemType, u32 itemId) {
             break;
     }
 
+    if (!isSaveLoaded) {
+        itemObtained = false;
+    }
+
     trackerImageObject.textureColor.w = itemObtained ? 1.0f : 0.4f;
     return trackerImageObject;
 }
@@ -166,29 +183,29 @@ std::string GetItemCounts(TrackerItemType itemType, u32 itemId) {
                 case RI_GS_TOKEN_OCEAN:
                 case RI_GS_TOKEN_SWAMP: {
                     auto max =
-                        IS_RANDO ? RANDO_SAVE_OPTIONS[RO_MINIMUM_SKULLTULA_TOKENS] : SPIDER_HOUSE_TOKENS_REQUIRED;
+                        IS_RANDO ? RANDO_SAVE_OPTIONS[RO_SKULLTULA_TOKENS_REQUIRED] : SPIDER_HOUSE_TOKENS_REQUIRED;
                     auto count =
                         Inventory_GetSkullTokenCount(itemId == RI_GS_TOKEN_SWAMP ? SCENE_KINSTA1 : SCENE_KINDAN2);
                     countStr = fmt::format(FORMAT_COUNT, count, max);
                 } break;
                 case RI_WOODFALL_STRAY_FAIRY: {
-                    auto max = IS_RANDO ? RANDO_SAVE_OPTIONS[RO_MINIMUM_STRAY_FAIRIES] : STRAY_FAIRY_SCATTERED_TOTAL;
+                    auto max = IS_RANDO ? RANDO_SAVE_OPTIONS[RO_STRAY_FAIRIES_REQUIRED] : STRAY_FAIRY_SCATTERED_TOTAL;
                     auto count = gSaveContext.save.saveInfo.inventory.strayFairies[DUNGEON_SCENE_INDEX_WOODFALL_TEMPLE];
                     countStr = fmt::format(FORMAT_COUNT, count, max);
                 } break;
                 case RI_SNOWHEAD_STRAY_FAIRY: {
-                    auto max = IS_RANDO ? RANDO_SAVE_OPTIONS[RO_MINIMUM_STRAY_FAIRIES] : STRAY_FAIRY_SCATTERED_TOTAL;
+                    auto max = IS_RANDO ? RANDO_SAVE_OPTIONS[RO_STRAY_FAIRIES_REQUIRED] : STRAY_FAIRY_SCATTERED_TOTAL;
                     auto count = gSaveContext.save.saveInfo.inventory.strayFairies[DUNGEON_SCENE_INDEX_SNOWHEAD_TEMPLE];
                     countStr = fmt::format(FORMAT_COUNT, count, max);
                 } break;
                 case RI_GREAT_BAY_STRAY_FAIRY: {
-                    auto max = IS_RANDO ? RANDO_SAVE_OPTIONS[RO_MINIMUM_STRAY_FAIRIES] : STRAY_FAIRY_SCATTERED_TOTAL;
+                    auto max = IS_RANDO ? RANDO_SAVE_OPTIONS[RO_STRAY_FAIRIES_REQUIRED] : STRAY_FAIRY_SCATTERED_TOTAL;
                     auto count =
                         gSaveContext.save.saveInfo.inventory.strayFairies[DUNGEON_SCENE_INDEX_GREAT_BAY_TEMPLE];
                     countStr = fmt::format(FORMAT_COUNT, count, max);
                 } break;
                 case RI_STONE_TOWER_STRAY_FAIRY: {
-                    auto max = IS_RANDO ? RANDO_SAVE_OPTIONS[RO_MINIMUM_STRAY_FAIRIES] : STRAY_FAIRY_SCATTERED_TOTAL;
+                    auto max = IS_RANDO ? RANDO_SAVE_OPTIONS[RO_STRAY_FAIRIES_REQUIRED] : STRAY_FAIRY_SCATTERED_TOTAL;
                     auto count =
                         gSaveContext.save.saveInfo.inventory.strayFairies[DUNGEON_SCENE_INDEX_STONE_TOWER_TEMPLE];
                     countStr = fmt::format(FORMAT_COUNT, count, max);
@@ -334,8 +351,10 @@ bool DrawItemTrackerSlot(TrackerItemType itemType, u32 itemId, float scale, bool
                                              ImGui::GetColorU32(tintColor));
     }
 
-    ImGui::GetWindowDrawList()->AddImage(imageObject.textureId, p0 + offset, p0 + offset + drawSize, ImVec2(0, 0),
-                                         ImVec2(1, 1), ImGui::GetColorU32(imageObject.textureColor));
+    if (imageObject.textureId != nullptr) {
+        ImGui::GetWindowDrawList()->AddImage(imageObject.textureId, p0 + offset, p0 + offset + drawSize, ImVec2(0, 0),
+                                             ImVec2(1, 1), ImGui::GetColorU32(imageObject.textureColor));
+    }
     auto itemName = GetItemTrackerItemName(itemType, itemId);
     if (!itemName.empty()) {
         UIWidgets::Tooltip(itemName.c_str());
@@ -383,7 +402,14 @@ void ItemTrackerWindow::Draw() {
         return;
     }
 
-    if (!gPlayState) {
+    if (CVAR_VISIBILITY_MODE == ITEM_TRACKER_VISIBILITY_MODE_ONLY_ON_PAUSE_MENU &&
+        (!gPlayState || !gPlayState->pauseCtx.state)) {
+        return;
+    }
+
+    if ((CVAR_VISIBILITY_MODE == ITEM_TRACKER_VISIBILITY_MODE_BUTTON_TOGGLE ||
+         CVAR_VISIBILITY_MODE == ITEM_TRACKER_VISIBILITY_MODE_BUTTON_HOLD) &&
+        !sItemTrackerBtnState) {
         return;
     }
 
@@ -451,3 +477,24 @@ void ItemTrackerWindow::InitElement() {
 
 void ItemTrackerWindow::DrawElement() {
 }
+
+static RegisterShipInitFunc initFunc(
+    []() {
+        COND_HOOK(OnGameStateMainStart, CVAR_VISIBILITY_MODE >= ITEM_TRACKER_VISIBILITY_MODE_BUTTON_TOGGLE, []() {
+            Input* input = CONTROLLER1(gGameState);
+
+            if (CVAR_VISIBILITY_MODE == ITEM_TRACKER_VISIBILITY_MODE_BUTTON_HOLD) {
+                if (CHECK_BTN_ALL(input->cur.button, CVAR_VISIBILITY_BTN)) {
+                    sItemTrackerBtnState = true;
+                } else {
+                    sItemTrackerBtnState = false;
+                }
+            } else {
+                if (CHECK_BTN_ALL(input->cur.button, CVAR_VISIBILITY_BTN) &&
+                    CHECK_BTN_ANY(input->press.button, CVAR_VISIBILITY_BTN)) {
+                    sItemTrackerBtnState = !sItemTrackerBtnState;
+                }
+            }
+        });
+    },
+    { CVAR_NAME_VISIBILITY_MODE });

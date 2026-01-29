@@ -4,6 +4,7 @@
 #include "ShipUtils.h"
 #include "ship/config/Config.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/BenPort.h"
 
 namespace BenGui {
 extern std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
@@ -13,8 +14,19 @@ void ItemTrackerSettingsWindow::UpdateElement() {
 }
 
 #define WIDGET_COLOR UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5))
+#define CVAR_NAME_VISIBILITY_MODE "gSettings.ItemTracker.VisibilityMode"
+#define CVAR_NAME_VISIBILITY_BTN "gSettings.ItemTracker.VisibilityBtn"
+#define CVAR_VISIBILITY_MODE CVarGetInteger(CVAR_NAME_VISIBILITY_MODE, ITEM_TRACKER_VISIBILITY_MODE_ALWAYS)
+#define CVAR_VISIBILITY_BTN CVarGetInteger(CVAR_NAME_VISIBILITY_BTN, BTN_CUSTOM_MODIFIER1)
 
 static const char* windowTypes[2] = { "Floating", "Window" };
+
+static std::unordered_map<int32_t, const char*> sItemTrackerVisibilityModes = {
+    { ITEM_TRACKER_VISIBILITY_MODE_ALWAYS, "Always" },
+    { ITEM_TRACKER_VISIBILITY_MODE_ONLY_ON_PAUSE_MENU, "Only on Pause Menu" },
+    { ITEM_TRACKER_VISIBILITY_MODE_BUTTON_TOGGLE, "Button Toggle" },
+    { ITEM_TRACKER_VISIBILITY_MODE_BUTTON_HOLD, "Button Hold" },
+};
 
 std::vector<TrackerGroup> itemTrackerGroupsAvailable;
 void SaveItemTrackerLayout();
@@ -285,6 +297,10 @@ void LoadAvailableWindows() {
             { TRACKER_ITEM_RANDO, RI_SONG_NOVA },
             { TRACKER_ITEM_RANDO, RI_SONG_ELEGY },
             { TRACKER_ITEM_RANDO, RI_SONG_OATH },
+            { TRACKER_ITEM_RANDO, RI_SONG_DOUBLE_TIME },
+            { TRACKER_ITEM_RANDO, RI_SONG_INVERTED_TIME },
+            { TRACKER_ITEM_RANDO, RI_SONG_SUN },
+            { TRACKER_ITEM_RANDO, RI_SONG_SARIA },
         },
     });
 
@@ -397,7 +413,14 @@ void LoadAvailableWindows() {
         .name = "Time",
         .columns = 6,
         .scale = 1.0f,
-        .items = GetItemsFromRange(TRACKER_ITEM_RANDO, RI_TIME_DAY_1, RI_TIME_NIGHT_3),
+        .items = {
+            { TRACKER_ITEM_RANDO, RI_TIME_DAY_1 },
+            { TRACKER_ITEM_RANDO, RI_TIME_NIGHT_1 },
+            { TRACKER_ITEM_RANDO, RI_TIME_DAY_2 },
+            { TRACKER_ITEM_RANDO, RI_TIME_NIGHT_2 },
+            { TRACKER_ITEM_RANDO, RI_TIME_DAY_3 },
+            { TRACKER_ITEM_RANDO, RI_TIME_NIGHT_3 },
+        },
     });
 
     itemTrackerGroupsAvailable.push_back(TrackerGroup{
@@ -420,6 +443,15 @@ void ApplyDefaultItemPreset() {
 
     for (auto& group : itemTrackerGroupsAvailable) {
         if (defaultGroups.count(group.name)) {
+            if (group.name == "Songs") {
+                // Limit songs to first 10 in default preset
+                TrackerGroup limitedGroup = group;
+                limitedGroup.items =
+                    std::vector<std::pair<TrackerItemType, u32>>(group.items.begin(), group.items.begin() + 10);
+                itemTrackerGroups.push_back(limitedGroup);
+                continue;
+            }
+
             itemTrackerGroups.push_back(group);
         }
     }
@@ -473,7 +505,7 @@ void LoadItemTrackerConfig() {
 }
 
 void DrawTrackerOptions() {
-    if (ImGui::BeginTable("OptionsTable", 2)) {
+    if (ImGui::BeginTable("OptionsTable", 3)) {
         ImGui::TableNextColumn();
         if (CVarGetInteger("gWindows.ItemTracker", 0)) {
             UIWidgets::WindowButton("Disable Item Tracker", "gWindows.ItemTracker", BenGui::mItemTrackerWindow,
@@ -483,13 +515,28 @@ void DrawTrackerOptions() {
                                     { .size = UIWidgets::Sizes::Inline, .color = UIWidgets::Colors::Green });
         }
 
-        UIWidgets::CVarCombobox("Window Type", "gSettings.ItemTracker.WindowType", windowTypes,
-                                { .alignment = UIWidgets::ComponentAlignment::Right,
-                                  .labelPosition = UIWidgets::LabelPosition::Near,
-                                  .color = WIDGET_COLOR });
         UIWidgets::CVarCheckbox("Split Window Groups", "gSettings.ItemTracker.WindowGroup");
         UIWidgets::CVarCheckbox("Show Item Counts", "gSettings.ItemTracker.ItemCounts",
                                 UIWidgets::CheckboxOptions().DefaultValue(true));
+        ImGui::TextWrapped(
+            "Click or drag & drop individual items, or use the corner buttons to add/remove entire groups.");
+        ImGui::TableNextColumn();
+
+        UIWidgets::CVarCombobox("Window Type", "gSettings.ItemTracker.WindowType", windowTypes,
+                                UIWidgets::ComboboxOptions()
+                                    .ComponentAlignment(UIWidgets::ComponentAlignment::Right)
+                                    .LabelPosition(UIWidgets::LabelPosition::Far));
+        UIWidgets::CVarCombobox("Visibility", CVAR_NAME_VISIBILITY_MODE, &sItemTrackerVisibilityModes,
+                                UIWidgets::ComboboxOptions()
+                                    .DefaultIndex(ITEM_TRACKER_VISIBILITY_MODE_ALWAYS)
+                                    .ComponentAlignment(UIWidgets::ComponentAlignment::Right)
+                                    .LabelPosition(UIWidgets::LabelPosition::Far));
+        if (CVAR_VISIBILITY_MODE == ITEM_TRACKER_VISIBILITY_MODE_BUTTON_TOGGLE ||
+            CVAR_VISIBILITY_MODE == ITEM_TRACKER_VISIBILITY_MODE_BUTTON_HOLD) {
+            UIWidgets::CVarBtnSelector("Button Combination:", CVAR_NAME_VISIBILITY_BTN,
+                                       UIWidgets::BtnSelectorOptions().DefaultValue(BTN_CUSTOM_MODIFIER1));
+        }
+
         ImGui::TableNextColumn();
 
         if (UIWidgets::Button("Restore Default Groups", { .color = UIWidgets::Colors::Gray })) {

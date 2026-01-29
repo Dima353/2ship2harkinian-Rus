@@ -80,6 +80,7 @@ static std::vector<RandoItemId> junkItems = {
 
 static std::vector<RandoItemId> obtainableJunkItems;
 static std::vector<RandoItemId> obtainableTrapItems;
+static std::vector<RandoItemId> allTrapItems;
 
 void RefreshObtainableJunkItems() {
     obtainableJunkItems.clear();
@@ -144,6 +145,17 @@ static RegisterShipInitFunc refreshInitFunc(
             RefreshObtainableJunkItems();
             RefreshObtainableTrapItems();
         });
+
+        if (IS_RANDO) {
+            for (auto& [randoCheckId, _] : Rando::StaticData::Checks) {
+                RandoSaveCheck saveCheck = RANDO_SAVE_CHECKS[randoCheckId];
+                if (saveCheck.shuffled &&
+                    (Rando::StaticData::Items[saveCheck.randoItemId].randoItemType == RITYPE_MAJOR ||
+                     Rando::StaticData::Items[saveCheck.randoItemId].randoItemType == RITYPE_MASK)) {
+                    allTrapItems.push_back(saveCheck.randoItemId);
+                }
+            }
+        }
     },
     { "IS_RANDO" });
 
@@ -159,13 +171,23 @@ RandoItemId Rando::CurrentJunkItem(RandoCheckId randoCheckId) {
 }
 
 RandoItemId Rando::CurrentTrapItem(RandoCheckId randoCheckId) {
-    if (obtainableTrapItems.size() == 0) {
-        return RI_RUPEE_SILVER;
+    if (CVarGetInteger("gRando.TrapItems", 0) == 0) {
+        if (obtainableTrapItems.size() == 0) {
+            return RI_RUPEE_SILVER;
+        }
+
+        Ship_Random_Seed(gSaveContext.save.shipSaveInfo.rando.finalSeed + randoCheckId);
+
+        return obtainableTrapItems[Ship_Random(0, obtainableTrapItems.size() - 1)];
+    } else {
+        if (allTrapItems.size() == 0) {
+            return RI_RUPEE_SILVER;
+        }
+
+        Ship_Random_Seed(gSaveContext.save.shipSaveInfo.rando.finalSeed + randoCheckId);
+
+        return allTrapItems[Ship_Random(0, allTrapItems.size() - 1)];
     }
-
-    Ship_Random_Seed(gSaveContext.save.shipSaveInfo.rando.finalSeed + randoCheckId);
-
-    return obtainableTrapItems[Ship_Random(0, obtainableTrapItems.size() - 1)];
 }
 
 bool Rando::IsItemObtainable(RandoItemId randoItemId, RandoCheckId randoCheckId) {
@@ -300,7 +322,6 @@ bool Rando::IsItemObtainable(RandoItemId randoItemId, RandoCheckId randoCheckId)
         case RI_SNOWHEAD_SMALL_KEY:
         case RI_GREAT_BAY_SMALL_KEY:
         case RI_STONE_TOWER_SMALL_KEY:
-        case RI_CLOCK_TOWN_STRAY_FAIRY:
         case RI_WOODFALL_STRAY_FAIRY:
         case RI_SNOWHEAD_STRAY_FAIRY:
         case RI_GREAT_BAY_STRAY_FAIRY:
@@ -312,6 +333,8 @@ bool Rando::IsItemObtainable(RandoItemId randoItemId, RandoCheckId randoCheckId)
                 return false;
             }
             return true;
+        case RI_CLOCK_TOWN_STRAY_FAIRY:
+            return !CHECK_WEEKEVENTREG(WEEKEVENTREG_08_80);
         case RI_HEART_PIECE:
         case RI_HEART_CONTAINER:
             if (hasObtainedCheck) {
@@ -453,6 +476,8 @@ bool Rando::IsItemObtainable(RandoItemId randoItemId, RandoCheckId randoCheckId)
             return !CHECK_QUEST_ITEM(QUEST_REMAINS_GYORG);
         case RI_REMAINS_TWINMOLD:
             return !CHECK_QUEST_ITEM(QUEST_REMAINS_TWINMOLD);
+        case RI_SONG_DOUBLE_TIME:
+            return !Flags_GetRandoInf(RANDO_INF_OBTAINED_SONG_DOUBLE_TIME);
         case RI_SONG_NOVA:
             return !CHECK_QUEST_ITEM(QUEST_SONG_BOSSA_NOVA);
         case RI_SONG_ELEGY:
@@ -461,6 +486,8 @@ bool Rando::IsItemObtainable(RandoItemId randoItemId, RandoCheckId randoCheckId)
             return !CHECK_QUEST_ITEM(QUEST_SONG_EPONA);
         case RI_SONG_HEALING:
             return !CHECK_QUEST_ITEM(QUEST_SONG_HEALING);
+        case RI_SONG_INVERTED_TIME:
+            return !Flags_GetRandoInf(RANDO_INF_OBTAINED_SONG_INVERTED_TIME);
         case RI_SONG_LULLABY_INTRO:
             return !CHECK_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO);
         case RI_SONG_LULLABY:

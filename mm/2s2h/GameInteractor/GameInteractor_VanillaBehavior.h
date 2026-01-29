@@ -648,6 +648,14 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // false
+    // ```
+    // #### `args`
+    // - None
+    VB_EN_FSN_HAS_ITEMS,
+
+    // #### `result`
+    // ```c
     // itemAction == GET_IA_FROM_MASK(this->currentMask)
     // ```
     // #### `args`
@@ -946,6 +954,14 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_GRANNY_STORY_INCREMENT_DAY,
+
+    // #### `result`
+    // ```c
     // gSaveContext.isMagicRequested
     // ```
     // #### `args`
@@ -1240,6 +1256,22 @@ typedef enum {
     // #### `args`
     // - `*EnMnk`
     VB_MONKEY_WAIT_TO_TALK_AFTER_APPROACH,
+
+    // #### `result`
+    // ```c
+    // false
+    // ```
+    // #### `args`
+    // - None
+    VB_MSG_CAPTURE_MSGMODE_TEXT_DONE,
+
+    // #### `result`
+    // ```c
+    // false
+    // ```
+    // #### `args`
+    // - None
+    VB_MSG_CAPTURE_MSGMODE_TEXT_CLOSING_OCARINA_ACTION,
 
     // #### `result`
     // ```c
@@ -1687,6 +1719,22 @@ typedef enum {
     // #### `args`
     // - `*EnSuttari`
     VB_SAKON_TAKE_DAMAGE,
+
+    // #### `result`
+    // ```c
+    // OSTIME_TO_TIMER(osGetTime() - sramCtx->startWriteOsTime) >= SECONDS_TO_TIMER(2))
+    // ```
+    // #### `args`
+    // - None
+    VB_SAVE_DELAY,
+
+    // #### `result`
+    // ```c
+    // gSaveContext.save.isOwlSave
+    // ```
+    // #### `args`
+    // - None
+    VB_SAVE_USE_OWL_SAVE_TIMING,
 
     // #### `result`
     // ```c

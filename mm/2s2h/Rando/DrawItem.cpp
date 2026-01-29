@@ -90,6 +90,8 @@ void DrawSong(RandoItemId randoItemId) {
         case RI_SONG_SUN:
             gDPSetEnvColor(POLY_XLU_DISP++, 237, 231, 62, 255);
             break;
+        case RI_SONG_DOUBLE_TIME:
+        case RI_SONG_INVERTED_TIME:
         case RI_SONG_TIME:
             gDPSetEnvColor(POLY_XLU_DISP++, 98, 177, 211, 255);
             break;
@@ -99,6 +101,7 @@ void DrawSong(RandoItemId randoItemId) {
         case RI_SONG_STORMS:
             gDPSetEnvColor(POLY_XLU_DISP++, 146, 146, 146, 255);
             break;
+        case RI_SONG_SARIA:
         case RI_SONG_SONATA:
             gDPSetEnvColor(POLY_XLU_DISP++, 98, 255, 98, 255);
             break;
@@ -154,9 +157,9 @@ void DrawMilkRefill() {
     Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
 
     gSPSegment(POLY_OPA_DISP++, 0x08,
-               (uintptr_t)Gfx_TwoTexScroll(gPlayState->state.gfxCtx, G_TX_RENDERTILE, -gPlayState->state.frames,
-                                           gPlayState->state.frames, 32, 32, 1, -gPlayState->state.frames,
-                                           gPlayState->state.frames, 32, 32));
+               (uintptr_t)Gfx_TwoTexScrollEx(gPlayState->state.gfxCtx, G_TX_RENDERTILE, -gPlayState->state.frames,
+                                             gPlayState->state.frames, 32, 32, 1, -gPlayState->state.frames,
+                                             gPlayState->state.frames, 32, 32, -1, 1, -1, 1));
     MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
     // Container Color
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, 255);
@@ -290,9 +293,9 @@ void DrawSkulltulaToken(RandoItemId randoItemId, Actor* actor) {
     }
 
     gSPSegment(POLY_XLU_DISP++, 0x08,
-               (uintptr_t)Gfx_TwoTexScroll(gPlayState->state.gfxCtx, G_TX_RENDERTILE, gPlayState->state.frames * 0,
-                                           -(gPlayState->state.frames * 5), 32, 32, 1, gPlayState->state.frames * 0,
-                                           gPlayState->state.frames * 0, 32, 64));
+               (uintptr_t)Gfx_TwoTexScrollEx(gPlayState->state.gfxCtx, G_TX_RENDERTILE, gPlayState->state.frames * 0,
+                                             -(gPlayState->state.frames * 5), 32, 32, 1, gPlayState->state.frames * 0,
+                                             gPlayState->state.frames * 0, 32, 64, 0, -5, 0, 0));
     MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
     gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gSkulltulaTokenFlameCopyDL);
 
@@ -486,6 +489,7 @@ void Rando::DrawItem(RandoItemId randoItemId, RandoCheckId randoCheckId, Actor* 
         case RI_SONG_STORMS:
         case RI_SONG_SUN:
         case RI_SONG_HEALING:
+        case RI_SONG_SARIA:
         case RI_SONG_SOARING:
         case RI_SONG_SONATA:
         case RI_SONG_ELEGY:
@@ -494,6 +498,8 @@ void Rando::DrawItem(RandoItemId randoItemId, RandoCheckId randoCheckId, Actor* 
         case RI_SONG_OATH:
         case RI_SONG_EPONA:
         case RI_SONG_NOVA:
+        case RI_SONG_DOUBLE_TIME:
+        case RI_SONG_INVERTED_TIME:
             DrawSong(randoItemId);
             break;
         case RI_CLOCK_TOWN_STRAY_FAIRY:
