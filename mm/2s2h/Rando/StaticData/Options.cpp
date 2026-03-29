@@ -27,6 +27,7 @@ std::map<RandoOptionId, RandoStaticOption> Options = {
     RO(RO_CLOCK_SHUFFLE,               RO_GENERIC_OFF),
     RO(RO_CLOCK_TERMINAL_TIME,         0), // Default: 00:00 (midnight)
     RO(RO_HINTS_BOSS_REMAINS,          RO_GENERIC_OFF),
+    RO(RO_HINTS_GOSSIP_STONE_STRENGTH, 50),
     RO(RO_HINTS_GOSSIP_STONES,         RO_GENERIC_OFF),
     RO(RO_HINTS_HOOKSHOT,              RO_GENERIC_OFF),
     RO(RO_HINTS_OATH_TO_ORDER,         RO_GENERIC_OFF),
@@ -59,6 +60,7 @@ std::map<RandoOptionId, RandoStaticOption> Options = {
     RO(RO_SHUFFLE_SWIM,                RO_GENERIC_OFF),
     RO(RO_SHUFFLE_TINGLE_SHOPS,        RO_GENERIC_OFF),
     RO(RO_SHUFFLE_TRAPS,               RO_GENERIC_OFF),
+    RO(RO_SHUFFLE_TYCOON_WALLET,       RO_GENERIC_OFF),
     RO(RO_SHUFFLE_TREE_DROPS,          RO_GENERIC_OFF),
     RO(RO_SHUFFLE_TRIFORCE_PIECES,     RO_GENERIC_OFF),
     RO(RO_SKULLTULA_TOKENS_MAX,        SPIDER_HOUSE_TOKENS_REQUIRED),
