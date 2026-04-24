@@ -4365,7 +4365,9 @@ u8 Item_GiveImpl(PlayState* play, u8 item) {
             INV_CONTENT(ITEM_POWDER_KEG) = ITEM_POWDER_KEG;
         }
 
-        AMMO(ITEM_POWDER_KEG) = 1;
+        if (GameInteractor_Should(VB_POWDER_KEG_SET_AMMO_ON_GIVE, true)) {
+            AMMO(ITEM_POWDER_KEG) = 1;
+        }
         return ITEM_NONE;
 
     } else if (item == ITEM_BOMB) {
@@ -5222,10 +5224,12 @@ void Inventory_ChangeAmmo(s16 item, s16 ammoChange) {
 
     } else if (item == ITEM_POWDER_KEG) {
         AMMO(ITEM_POWDER_KEG) += ammoChange;
-        if (AMMO(ITEM_POWDER_KEG) >= 1) {
-            AMMO(ITEM_POWDER_KEG) = 1;
-        } else if (AMMO(ITEM_POWDER_KEG) < 0) {
-            AMMO(ITEM_POWDER_KEG) = 0;
+        if (GameInteractor_Should(VB_POWDER_KEG_CAP_AMMO, true)) {
+            if (AMMO(ITEM_POWDER_KEG) >= 1) {
+                AMMO(ITEM_POWDER_KEG) = 1;
+            } else if (AMMO(ITEM_POWDER_KEG) < 0) {
+                AMMO(ITEM_POWDER_KEG) = 0;
+            }
         }
     }
 }
@@ -6187,8 +6191,8 @@ void Interface_Dpad_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
             ((i == ITEM_DEKU_STICK) && (AMMO(i) == CUR_CAPACITY(UPG_DEKU_STICKS))) ||
             ((i == ITEM_DEKU_NUT) && (AMMO(i) == CUR_CAPACITY(UPG_DEKU_NUTS))) ||
             ((i == ITEM_BOMBCHU) && (AMMO(i) == CUR_CAPACITY(UPG_BOMB_BAG))) ||
-            ((i == ITEM_POWDER_KEG) && (ammo == 1)) || ((i == ITEM_PICTOGRAPH_BOX) && (ammo == 1)) ||
-            ((i == ITEM_MAGIC_BEANS) && (ammo == 20))) {
+            ((i == ITEM_POWDER_KEG) && GameInteractor_Should(VB_POWDER_KEG_AMMO_AT_CAPACITY, ammo == 1)) ||
+            ((i == ITEM_PICTOGRAPH_BOX) && (ammo == 1)) || ((i == ITEM_MAGIC_BEANS) && (ammo == 20))) {
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 120, 255, 0, alpha);
         }
 
@@ -6297,9 +6301,7 @@ void Interface_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
         //! but prior to that, when certain conditions are met, the color will have last been set by the wallet icon
         //! causing the ammo count to be drawn incorrectly. This is most obvious when you get deku nuts early on, and
         //! the ammo count is drawn with a shade of green.
-        if (CVarGetInteger("gFixes.FixAmmoCountEnvColor", 0)) {
-            gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 255);
-        }
+        GameInteractor_Should(VB_SET_BUTTON_ENV_COLOR, false);
 
         if ((button == EQUIP_SLOT_B) && (gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE)) {
             ammo = play->interfaceCtx.minigameAmmo;
@@ -6310,8 +6312,8 @@ void Interface_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
                    ((i == ITEM_DEKU_STICK) && (AMMO(i) == CUR_CAPACITY(UPG_DEKU_STICKS))) ||
                    ((i == ITEM_DEKU_NUT) && (AMMO(i) == CUR_CAPACITY(UPG_DEKU_NUTS))) ||
                    ((i == ITEM_BOMBCHU) && (AMMO(i) == CUR_CAPACITY(UPG_BOMB_BAG))) ||
-                   ((i == ITEM_POWDER_KEG) && (ammo == 1)) || ((i == ITEM_PICTOGRAPH_BOX) && (ammo == 1)) ||
-                   ((i == ITEM_MAGIC_BEANS) && (ammo == 20))) {
+                   ((i == ITEM_POWDER_KEG) && GameInteractor_Should(VB_POWDER_KEG_AMMO_AT_CAPACITY, ammo == 1)) ||
+                   ((i == ITEM_PICTOGRAPH_BOX) && (ammo == 1)) || ((i == ITEM_MAGIC_BEANS) && (ammo == 20))) {
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 120, 255, 0, alpha);
         }
 
@@ -6376,6 +6378,9 @@ void Interface_DrawBButtonIcons(PlayState* play) {
                     gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE,
                                       0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
 
+                    //! @bug Same missing gDPSetEnvColor as in Interface_DrawAmmoCount. The B button ammo count
+                    //! will be drawn with the last env color set prior to obtaining magic.
+                    GameInteractor_Should(VB_SET_BUTTON_ENV_COLOR, false);
                     if ((play->sceneId != SCENE_SYATEKI_MIZU) && (play->sceneId != SCENE_SYATEKI_MORI) &&
                         (play->sceneId != SCENE_BOWLING) &&
                         ((gSaveContext.minigameStatus != MINIGAME_STATUS_ACTIVE) ||
@@ -6391,6 +6396,10 @@ void Interface_DrawBButtonIcons(PlayState* play) {
         gDPPipeSync(OVERLAY_DISP++);
         gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
                           PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+        //! @bug Same missing gDPSetEnvColor as in Interface_DrawAmmoCount. The B button action label
+        //! uses ENVIRONMENT in its combine mode and will be drawn with the last env color set (e.g. green
+        //! from the wallet icon) prior to obtaining magic.
+        GameInteractor_Should(VB_SET_BUTTON_ENV_COLOR, false);
         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->bAlpha);
         gDPLoadTextureBlock_4b(OVERLAY_DISP++, interfaceCtx->doActionSegment[DO_ACTION_SEG_B].mainTex, G_IM_FMT_IA,
                                DO_ACTION_TEX_WIDTH, DO_ACTION_TEX_HEIGHT, 0, G_TX_NOMIRROR | G_TX_WRAP,
@@ -6434,6 +6443,10 @@ void Interface_DrawBButtonIcons(PlayState* play) {
         gDPPipeSync(OVERLAY_DISP++);
         gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
                           PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+        //! @bug Same missing gDPSetEnvColor as in Interface_DrawAmmoCount. The B button action label
+        //! uses ENVIRONMENT in its combine mode and will be drawn with the last env color set (e.g. green
+        //! from the wallet icon) prior to obtaining magic.
+        GameInteractor_Should(VB_SET_BUTTON_ENV_COLOR, false);
         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->bAlpha);
         gDPLoadTextureBlock_4b(OVERLAY_DISP++, interfaceCtx->doActionSegment[DO_ACTION_SEG_B].subTex, G_IM_FMT_IA,
                                DO_ACTION_TEX_WIDTH, DO_ACTION_TEX_HEIGHT, 0, G_TX_NOMIRROR | G_TX_WRAP,

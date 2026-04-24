@@ -316,6 +316,10 @@ void BenMenu::AddSettings() {
                      .Tooltip("Changes the Theme of the Menu Widgets.")
                      .ComboMap(&menuThemeOptions)
                      .DefaultIndex(Colors::LightBlue));
+    AddWidget(path, "Menu Background Opacity", WIDGET_CVAR_SLIDER_FLOAT)
+        .CVar("gSettings.Menu.BackgroundOpacity")
+        .Options(FloatSliderOptions().DefaultValue(0.85f).IsPercentage().Tooltip(
+            "Sets the opacity of the background of the port menu."));
 #if not defined(__SWITCH__) and not defined(__WIIU__)
     AddWidget(path, "Menu Controller Navigation", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_IMGUI_CONTROLLER_NAV)
@@ -1093,6 +1097,10 @@ void BenMenu::AddEnhancements() {
                               "-Half Price: Sell at half value (rounded up)"
                               "Arrows will always be sold back at Full Price.")
                      .ComboVec(&ammoBuybackOptions));
+    AddWidget(path, "Extra Powder Kegs", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Items.ExtraPowderKegs")
+        .Options(CheckboxOptions().Tooltip(
+            "Allows carrying up to 3 Powder Kegs at once instead of the vanilla limit of 1."));
     AddWidget(path, "Curiosity Shop Refills", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Shops.CuriosityShopRefills")
         .Options(CheckboxOptions().Tooltip(
@@ -1170,6 +1178,10 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Cycle.DoNotResetTimeSpeed")
         .Options(CheckboxOptions().Tooltip(
             "Playing the Song of Time will not reset the current time speed set by Inverted Song of Time."));
+    AddWidget(path, "Do not reset Chateau status", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Cycle.DoNotResetChateau")
+        .Options(CheckboxOptions().Tooltip(
+            "Playing the Song of Time will not reset the infinite magic status granted by Chateau Romani."));
     AddWidget(path, "Keep Express Mail", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cycle.KeepExpressMail")
         .Options(CheckboxOptions().Tooltip(
@@ -1494,6 +1506,9 @@ void BenMenu::AddEnhancements() {
             "Automatically deposits excess Rupees into your bank account when your wallet is full. "
             "Deposits stop when the bank reaches maximum capacity. "
             "Bank rewards are granted automatically. Notifications display deposit amount and new balance."));
+    AddWidget(path, "Faster Rupee Accumulator", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.FasterRupeeAccumulator")
+        .Options(CheckboxOptions().Tooltip("Causes your Wallet to fill and empty faster when you gain or lose money."));
 
     // Fixes
     path = { "Enhancements", "Fixes", SECTION_COLUMN_1 };
@@ -1511,10 +1526,11 @@ void BenMenu::AddEnhancements() {
                               "- Owl Warp menu crash when moving the cursor with Index-Warp active\n"
                               "- Remote Hookshot Hookslide crashes when over voids in Great Bay Temple")
                      .DefaultValue(true));
-    AddWidget(path, "Fix Ammo Count Color", WIDGET_CVAR_CHECKBOX)
-        .CVar("gFixes.FixAmmoCountEnvColor")
-        .Options(CheckboxOptions().Tooltip("Fixes a missing gDPSetEnvColor, which causes the ammo count to be "
-                                           "the wrong color prior to obtaining magic or other conditions."));
+    AddWidget(path, "Fix Button Env Color", WIDGET_CVAR_CHECKBOX)
+        .CVar("gFixes.FixButtonEnvColor")
+        .Options(CheckboxOptions().Tooltip(
+            "Fixes a missing gDPSetEnvColor, which causes ammo counts and B button "
+            "action labels to be the wrong color prior to obtaining magic or other conditions."));
     AddWidget(path, "Fix Epona stealing Sword", WIDGET_CVAR_CHECKBOX)
         .CVar("gFixes.FixEponaStealingSword")
         .Options(CheckboxOptions().Tooltip(
