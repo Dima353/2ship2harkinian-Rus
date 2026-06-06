@@ -315,6 +315,14 @@ typedef enum {
     // true
     // ```
     // #### `args`
+    // - None
+    VB_CONSUME_EPONA_CARROT,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
     // - `*EnGinkoMan`
     VB_CONTINUE_BANKER_DIALOGUE,
 
@@ -471,6 +479,16 @@ typedef enum {
     // true
     // ```
     // #### `args`
+    // - `s16` (button)
+    // - `s16` (alpha)
+    // - `bool` (isDpad)
+    VB_DRAW_HUD_AMMO_COUNT,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
     // - `*Actor`
     VB_DRAW_LOCK_ON_ARROW,
 
@@ -513,6 +531,9 @@ typedef enum {
     // ```
     // #### `args`
     // - `*ItemId`
+    // - `s32` (slot)
+    // - `s32` (isDpad)
+    // - `s32` (pageIndex)
     VB_DRAW_ITEM_EQUIPPED_OUTLINE,
 
     // #### `result`
@@ -710,6 +731,24 @@ typedef enum {
     // #### `args`
     // - None
     VB_EN_FSN_HAS_ITEMS,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*EnGs`
+    // - `*PlayState`
+    VB_EN_GS_BEFORE_GOSSIP_GROTTO_SEQUENCE,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*EnGs`
+    // - `*PlayState`
+    VB_EN_GS_FINISH_OCARINA_ON_RESET,
 
     // #### `result`
     // ```c
@@ -1204,6 +1243,17 @@ typedef enum {
     // true
     // ```
     // #### `args`
+    // - `PauseContext*`
+    // - `GraphicsContext*`
+    // - `s16` (item)
+    // - `u16` (ammoIndex)
+    VB_KALEIDO_DRAW_AMMO_COUNT,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
     // - `ItemId*` (draw item, mutable)
     VB_KALEIDO_DRAW_EQUIP_ANIM_ICON,
 
@@ -1607,6 +1657,37 @@ typedef enum {
     // - `*ColliderElement atElem` (unused)
     // - `*ColliderElement acElem`
     VB_PERFORM_AC_COLLISION,
+
+    // #### `result`
+    // ```c
+    // play->actorCtx.flags & ACTORCTX_FLAG_PICTO_BOX_ON
+    // ```
+    // #### `args`
+    // - None
+    VB_PICTO_ACTIVATE,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_PICTO_DISPLAY,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*PreRender` (prerender)
+    VB_PICTO_TAKE,
+
+    // !Play_InCsMode(play) && (play->roomCtx.curRoom.num == 2)
+    // ```
+    // #### `args`
+    // - `*EnTest3` (Kafei)
+    // - `*s32` (cutscene phase)
+    VB_PLAY_COUPLES_MASK_CS,
 
     // #### `result`
     // ```c

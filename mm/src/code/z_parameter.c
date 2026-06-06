@@ -3956,7 +3956,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
             gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
             // #endregion
             Interface_SetHudVisibility(HUD_VISIBILITY_A_B_HEARTS_MAGIC_MINIMAP);
-        } else if (play->actorCtx.flags & ACTORCTX_FLAG_PICTO_BOX_ON) {
+        } else if (GameInteractor_Should(VB_PICTO_ACTIVATE, play->actorCtx.flags & ACTORCTX_FLAG_PICTO_BOX_ON)) {
             // Related to pictograph
             if (!CHECK_QUEST_ITEM(QUEST_PICTOGRAPH)) {
                 Interface_SetBButtonInterfaceDoAction(play, DO_ACTION_STOP);
@@ -5676,7 +5676,7 @@ void Magic_DrawMeter(PlayState* play) {
         if (gSaveContext.magicState == MAGIC_STATE_METER_FLASH_2) {
             // Yellow part of the meter indicating the amount of magic to be subtracted
             gDPSetPrimColorOverrideEx(OVERLAY_DISP++, 0, 0, 250, 250, 0, interfaceCtx->magicAlpha,
-                                      COSMETIC_ELEMENT_MAGIC, COSMETIC_COLOR_MODE_ROTATE, -60.0f);
+                                      COSMETIC_ID("HUD.Magic"), COSMETIC_COLOR_MODE_ROTATE, -60.0f);
             gDPLoadTextureBlock_4b(OVERLAY_DISP++, gMagicMeterFillTex, G_IM_FMT_I, 16, 16, 0, G_TX_NOMIRROR | G_TX_WRAP,
                                    G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
@@ -5714,11 +5714,11 @@ void Magic_DrawMeter(PlayState* play) {
             if (CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEAU_ROMANI)) {
                 // Blue magic
                 gDPSetPrimColorOverrideEx(OVERLAY_DISP++, 0, 0, 0, 0, 200, interfaceCtx->magicAlpha,
-                                          COSMETIC_ELEMENT_MAGIC, COSMETIC_COLOR_MODE_ROTATE, 120.0f);
+                                          COSMETIC_ID("HUD.Magic"), COSMETIC_COLOR_MODE_ROTATE, 120.0f);
             } else {
                 // Green magic (default)
                 gDPSetPrimColorOverride(OVERLAY_DISP++, 0, 0, 0, 200, 0, interfaceCtx->magicAlpha,
-                                        COSMETIC_ELEMENT_MAGIC);
+                                        COSMETIC_ID("HUD.Magic"));
             }
 
             // #region 2S2H [Cosmetic] Hud Editor
@@ -5756,11 +5756,11 @@ void Magic_DrawMeter(PlayState* play) {
             if (CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEAU_ROMANI)) {
                 // Blue magic
                 gDPSetPrimColorOverrideEx(OVERLAY_DISP++, 0, 0, 0, 0, 200, interfaceCtx->magicAlpha,
-                                          COSMETIC_ELEMENT_MAGIC, COSMETIC_COLOR_MODE_ROTATE, 120.0f);
+                                          COSMETIC_ID("HUD.Magic"), COSMETIC_COLOR_MODE_ROTATE, 120.0f);
             } else {
                 // Green magic (default)
                 gDPSetPrimColorOverride(OVERLAY_DISP++, 0, 0, 0, 200, 0, interfaceCtx->magicAlpha,
-                                        COSMETIC_ELEMENT_MAGIC);
+                                        COSMETIC_ID("HUD.Magic"));
             }
 
             gDPLoadTextureBlock_4b(OVERLAY_DISP++, gMagicMeterFillTex, G_IM_FMT_I, 16, 16, 0, G_TX_NOMIRROR | G_TX_WRAP,
@@ -5917,7 +5917,7 @@ void Interface_DrawItemButtons(PlayState* play) {
         HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_D_PAD);
         OVERLAY_DISP =
             Gfx_DrawTexRectIA16_DropShadowOverride(OVERLAY_DISP, gDPadTex, 32, 32, 271, 55, 32, 32, 1024, 1024, 255,
-                                                   255, 255, dpadAlpha, COSMETIC_ELEMENT_D_PAD_BUTTON);
+                                                   255, 255, dpadAlpha, COSMETIC_ID("Buttons.DPad"));
         gDPPipeSync(OVERLAY_DISP++);
     }
     // #endregion
@@ -5928,7 +5928,7 @@ void Interface_DrawItemButtons(PlayState* play) {
         OVERLAY_DISP, gButtonBackgroundTex, 32, 32, sBCButtonXPositions[EQUIP_SLOT_B],
         sBCButtonYPositions[EQUIP_SLOT_B], sBCButtonSizes[EQUIP_SLOT_B], sBCButtonSizes[EQUIP_SLOT_B],
         sBCButtonScales[EQUIP_SLOT_B] * 2, sBCButtonScales[EQUIP_SLOT_B] * 2, 100, 255, 120, interfaceCtx->bAlpha,
-        COSMETIC_ELEMENT_B_BUTTON);
+        COSMETIC_ID("Buttons.B"));
     gDPPipeSync(OVERLAY_DISP++);
 
     // C-Left Button Color & Texture
@@ -5936,27 +5936,26 @@ void Interface_DrawItemButtons(PlayState* play) {
     OVERLAY_DISP = Gfx_DrawRect_DropShadowOverride(
         OVERLAY_DISP, sBCButtonXPositions[EQUIP_SLOT_C_LEFT], sBCButtonYPositions[EQUIP_SLOT_C_LEFT],
         sBCButtonSizes[EQUIP_SLOT_C_LEFT], sBCButtonSizes[EQUIP_SLOT_C_LEFT], sBCButtonScales[EQUIP_SLOT_C_LEFT] * 2,
-        sBCButtonScales[EQUIP_SLOT_C_LEFT] * 2, 255, 240, 0, interfaceCtx->cLeftAlpha, COSMETIC_ELEMENT_C_LEFT_BUTTON);
+        sBCButtonScales[EQUIP_SLOT_C_LEFT] * 2, 255, 240, 0, interfaceCtx->cLeftAlpha, COSMETIC_ID("Buttons.CLeft"));
     // C-Down Button Color & Texture
     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_DOWN);
     OVERLAY_DISP = Gfx_DrawRect_DropShadowOverride(
         OVERLAY_DISP, sBCButtonXPositions[EQUIP_SLOT_C_DOWN], sBCButtonYPositions[EQUIP_SLOT_C_DOWN],
         sBCButtonSizes[EQUIP_SLOT_C_DOWN], sBCButtonSizes[EQUIP_SLOT_C_DOWN], sBCButtonScales[EQUIP_SLOT_C_DOWN] * 2,
-        sBCButtonScales[EQUIP_SLOT_C_DOWN] * 2, 255, 240, 0, interfaceCtx->cDownAlpha, COSMETIC_ELEMENT_C_DOWN_BUTTON);
+        sBCButtonScales[EQUIP_SLOT_C_DOWN] * 2, 255, 240, 0, interfaceCtx->cDownAlpha, COSMETIC_ID("Buttons.CDown"));
     // C-Right Button Color & Texture
     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_RIGHT);
     OVERLAY_DISP = Gfx_DrawRect_DropShadowOverride(
         OVERLAY_DISP, sBCButtonXPositions[EQUIP_SLOT_C_RIGHT], sBCButtonYPositions[EQUIP_SLOT_C_RIGHT],
         sBCButtonSizes[EQUIP_SLOT_C_RIGHT], sBCButtonSizes[EQUIP_SLOT_C_RIGHT], sBCButtonScales[EQUIP_SLOT_C_RIGHT] * 2,
-        sBCButtonScales[EQUIP_SLOT_C_RIGHT] * 2, 255, 240, 0, interfaceCtx->cRightAlpha,
-        COSMETIC_ELEMENT_C_RIGHT_BUTTON);
+        sBCButtonScales[EQUIP_SLOT_C_RIGHT] * 2, 255, 240, 0, interfaceCtx->cRightAlpha, COSMETIC_ID("Buttons.CRight"));
 
     if (!IS_PAUSE_STATE_GAMEOVER(pauseCtx)) {
         if (IS_PAUSED(&play->pauseCtx)) {
             HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_START);
             OVERLAY_DISP = Gfx_DrawRect_DropShadowOverride(OVERLAY_DISP, 136, 17, 22, 22, (s32)(1.4277344f * (1 << 10)),
                                                            (s32)(1.4277344f * (1 << 10)), 255, 130, 60,
-                                                           interfaceCtx->startAlpha, COSMETIC_ELEMENT_START_BUTTON);
+                                                           interfaceCtx->startAlpha, COSMETIC_ID("Buttons.Start"));
             // Start Button Texture, Color & Label
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->startAlpha);
@@ -6068,13 +6067,13 @@ void Interface_DrawItemButtons(PlayState* play) {
         if (GET_CUR_FORM_BTN_ITEM(temp) > 0xF0) {
             if (temp == EQUIP_SLOT_C_LEFT) {
                 gDPSetPrimColorOverride(OVERLAY_DISP++, 0, 0, 255, 240, 0, interfaceCtx->cLeftAlpha,
-                                        COSMETIC_ELEMENT_C_LEFT_BUTTON);
+                                        COSMETIC_ID("Buttons.CLeft"));
             } else if (temp == EQUIP_SLOT_C_DOWN) {
                 gDPSetPrimColorOverride(OVERLAY_DISP++, 0, 0, 255, 240, 0, interfaceCtx->cDownAlpha,
-                                        COSMETIC_ELEMENT_C_DOWN_BUTTON);
+                                        COSMETIC_ID("Buttons.CDown"));
             } else { // EQUIP_SLOT_C_RIGHT
                 gDPSetPrimColorOverride(OVERLAY_DISP++, 0, 0, 255, 240, 0, interfaceCtx->cRightAlpha,
-                                        COSMETIC_ELEMENT_C_RIGHT_BUTTON);
+                                        COSMETIC_ID("Buttons.CRight"));
             }
             HudEditor_SetActiveElement(temp);
             OVERLAY_DISP =
@@ -6162,6 +6161,11 @@ s16 sDpadItemAmmoY[] = {
 void Interface_Dpad_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
     u8 i;
     u16 ammo;
+
+    if (!GameInteractor_Should(VB_DRAW_HUD_AMMO_COUNT, true, button, alpha, true)) {
+        return;
+    }
+
     OPEN_DISPS(play->state.gfxCtx);
 
     i = ((void)0, DPAD_GET_CUR_FORM_BTN_ITEM(button));
@@ -6273,6 +6277,11 @@ void Interface_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
     static s16 sAmmoDigitsYPositions[] = { 35, 35, 51, 35 };
     u8 i;
     u16 ammo;
+
+    if (!GameInteractor_Should(VB_DRAW_HUD_AMMO_COUNT, true, button, alpha, false)) {
+        return;
+    }
+
     OPEN_DISPS(play->state.gfxCtx);
 
     i = ((void)0, GET_CUR_FORM_BTN_ITEM(button));
@@ -6641,7 +6650,7 @@ void Interface_DrawAButton(PlayState* play) {
     gDPPipeSync(OVERLAY_DISP++);
     Interface_SetPerspectiveView(play, 23 + R_A_BTN_Y_OFFSET, 68 + R_A_BTN_Y_OFFSET, 190, 235);
     gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[0], 4, 0);
-    gDPSetPrimColorOverride(OVERLAY_DISP++, 0, 0, 100, 200, 255, interfaceCtx->aAlpha, COSMETIC_ELEMENT_A_BUTTON);
+    gDPSetPrimColorOverride(OVERLAY_DISP++, 0, 0, 100, 200, 255, interfaceCtx->aAlpha, COSMETIC_ID("Buttons.A"));
     gSP1Quadrangle(OVERLAY_DISP++, 0, 2, 3, 1, 0);
 
     // Draw A Button Do-Action
@@ -8362,6 +8371,12 @@ void Interface_DrawTimers(PlayState* play) {
                     if (sTimerId == TIMER_ID_MOON_CRASH) {
                         gSaveContext.save.day = 4;
                         if ((play->sceneId == SCENE_OKUJOU) && (gSaveContext.sceneLayer == 3)) {
+                            // This is a moon crash edge case that only occurs if the player played Oath to Order
+                            // without saving the Four Giants. An extra cutscene plays in Termina Field before the
+                            // standard moon crash cutscene, and Interface_StartMoonCrash never gets called. Therefore,
+                            // we add an extra call here to execute the moon crash hooks.
+                            GameInteractor_ExecuteBeforeMoonCrash();
+
                             play->nextEntrance = ENTRANCE(TERMINA_FIELD, 1);
                             gSaveContext.nextCutsceneIndex = 0xFFF0;
                             play->transitionTrigger = TRANS_TRIGGER_START;
@@ -8703,7 +8718,8 @@ void Interface_DrawMinigameIcons(PlayState* play) {
 
     if (!IS_PAUSED(&play->pauseCtx)) {
         // Carrots rendering if the action corresponds to riding a horse
-        if (interfaceCtx->aButtonDoActionDelayed == DO_ACTION_FASTER) {
+        if (interfaceCtx->aButtonDoActionDelayed == DO_ACTION_FASTER &&
+            GameInteractor_Should(VB_CONSUME_EPONA_CARROT, true)) {
             // Load Carrot Icon
             gDPLoadTextureBlock(OVERLAY_DISP++, gCarrotIconTex, G_IM_FMT_RGBA, G_IM_SIZ_32b, 16, 16, 0,
                                 G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
@@ -8977,7 +8993,7 @@ void Interface_Draw(PlayState* play) {
             gDPSetPrimColorOverride(OVERLAY_DISP++, 0, 0, sRupeeCounterIconPrimColors[CUR_UPG_VALUE(UPG_WALLET)].r,
                                     sRupeeCounterIconPrimColors[CUR_UPG_VALUE(UPG_WALLET)].g,
                                     sRupeeCounterIconPrimColors[CUR_UPG_VALUE(UPG_WALLET)].b, interfaceCtx->magicAlpha,
-                                    COSMETIC_ELEMENT_RUPEE_ICON);
+                                    COSMETIC_ID("HUD.RupeeIcon"));
             gDPSetEnvColor(OVERLAY_DISP++, sRupeeCounterIconEnvColors[CUR_UPG_VALUE(UPG_WALLET)].r,
                            sRupeeCounterIconEnvColors[CUR_UPG_VALUE(UPG_WALLET)].g,
                            sRupeeCounterIconEnvColors[CUR_UPG_VALUE(4)].b, 255);
@@ -8996,7 +9012,7 @@ void Interface_Draw(PlayState* play) {
                     // Small Key Icon
                     gDPPipeSync(OVERLAY_DISP++);
                     gDPSetPrimColorOverride(OVERLAY_DISP++, 0, 0, 200, 230, 255, interfaceCtx->magicAlpha,
-                                            COSMETIC_ELEMENT_SMALL_KEY);
+                                            COSMETIC_ID("HUD.SmallKey"));
                     gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 20, 255);
 
                     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_KEY_COUNTER);
@@ -9462,16 +9478,19 @@ void Interface_Draw(PlayState* play) {
             pictoRectTop = PICTO_PHOTO_TOPLEFT_Y - 33;
             for (sp2CC = 0; sp2CC < (PICTO_PHOTO_HEIGHT / 8); sp2CC++, pictoRectTop += 8) {
                 pictoRectLeft = PICTO_PHOTO_TOPLEFT_X;
-                // 2S2H [Port] Invalidate each section. This could probably be optimized to only be done once each pic
-                gSPInvalidateTexCache(OVERLAY_DISP++,
-                                      (u8*)((play->pictoPhotoI8 != NULL) ? play->pictoPhotoI8 : gWorkBuffer) +
-                                          (0x500 * sp2CC));
-                gDPLoadTextureBlock(OVERLAY_DISP++,
-                                    (u8*)((play->pictoPhotoI8 != NULL) ? play->pictoPhotoI8 : gWorkBuffer) +
-                                        (0x500 * sp2CC),
-                                    G_IM_FMT_I, G_IM_SIZ_8b, PICTO_PHOTO_WIDTH, 8, 0, G_TX_NOMIRROR | G_TX_WRAP,
-                                    G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
+                if (GameInteractor_Should(VB_PICTO_DISPLAY, true, &sp2CC)) {
+                    // 2S2H [Port] Invalidate each section. This could probably be optimized to only be done once each
+                    // pic
+                    gSPInvalidateTexCache(OVERLAY_DISP++,
+                                          (u8*)((play->pictoPhotoI8 != NULL) ? play->pictoPhotoI8 : gWorkBuffer) +
+                                              (0x500 * sp2CC));
+                    gDPLoadTextureBlock(OVERLAY_DISP++,
+                                        (u8*)((play->pictoPhotoI8 != NULL) ? play->pictoPhotoI8 : gWorkBuffer) +
+                                            (0x500 * sp2CC),
+                                        G_IM_FMT_I, G_IM_SIZ_8b, PICTO_PHOTO_WIDTH, 8, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                }
                 gSPTextureRectangle(OVERLAY_DISP++, pictoRectLeft << 2, pictoRectTop << 2,
                                     (pictoRectLeft + PICTO_PHOTO_WIDTH) << 2, (pictoRectTop << 2) + (8 << 2),
                                     G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
