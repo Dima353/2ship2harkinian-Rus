@@ -54,7 +54,7 @@ void SetEnabledModsCVarValue() {
     }
 
     CVarSetString(CVAR_ENABLED_MODS_NAME, s.c_str());
-    Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+    Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
 }
 
 void AfterModChange() {
@@ -105,7 +105,7 @@ std::vector<std::string>& GetModFiles(bool enabled) {
 }
 
 std::shared_ptr<Ship::ArchiveManager> GetArchiveManager() {
-    return Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager();
+    return Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager();
 }
 
 bool IsValidExtension(std::string extension) {
@@ -121,6 +121,8 @@ bool IsValidExtension(std::string extension) {
     }
     return false;
 }
+
+static bool archivesAdded = false;
 
 void UpdateModFiles(bool init = false, bool reset = false) {
     if (init || reset) {
@@ -161,7 +163,8 @@ void UpdateModFiles(bool init = false, bool reset = false) {
                 }
                 tempMods.clear();
             }
-            if (init) {
+            if (init && !archivesAdded) {
+                archivesAdded = true;
                 std::vector<std::string> enabledTemp(enabledModFiles);
                 for (std::string mod : enabledTemp) {
                     if (filePaths.contains(mod)) {
@@ -334,8 +337,8 @@ void ModMenuWindow::DrawElement() {
                                       gfx_texture_cache_clear();
                                       SOH::SkeletonPatcher::ClearSkeletons();
                                       */
-                                      Ship::Context::GetInstance()->GetConsoleVariables()->Save();
-                                      Ship::Context::GetInstance()->GetWindow()->Close();
+                                      Ship::Context::GetRawInstance()->GetConsoleVariables()->Save();
+                                      Ship::Context::GetRawInstance()->GetWindow()->Close();
                                   });
         }
     }
@@ -352,9 +355,8 @@ void ModMenuWindow::DrawElement() {
 
         if (ImGui::BeginChild("Enabled Mods", ImVec2(0, -8))) {
             DrawMods(true);
-
-            ImGui::EndChild();
         }
+        ImGui::EndChild();
 
         /*ImGui::TableNextColumn();
 
@@ -369,6 +371,10 @@ void ModMenuWindow::DrawElement() {
     ImGui::EndDisabled();
 }
 
+void ModMenu_LoadArchives() {
+    UpdateModFiles(true);
+}
+
 void ModMenuWindow::InitElement() {
     UpdateModFiles(true);
 }
@@ -379,7 +385,7 @@ void RegisterModMenuWidgets() {
         .Options(UIWidgets::CheckboxOptions({ { .disabledTooltip = "Temporarily disabled while editing mods list." } })
                      .Color(THEME_COLOR)
                      .Tooltip("Toggle mods. For graphics mods, this means toggling between default and mod graphics.")
-                     .DefaultValue(true))
+                     .DefaultValue(false))
         .PreFunc([](WidgetInfo& info) {
             auto options = std::static_pointer_cast<UIWidgets::CheckboxOptions>(info.options);
             options->disabled = editing;
