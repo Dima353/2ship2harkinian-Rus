@@ -89,6 +89,14 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (sDistortionRequest.type)
+    VB_APPLY_SCREEN_DISTORTION,
+
+    // #### `result`
+    // ```c
     // !play->interfaceCtx.perfectLettersOn
     // ```
     // #### `args`
@@ -1647,6 +1655,14 @@ typedef enum {
     // #### `args`
     // - `*OcarinaStaff` (the currently playing staff; state can be overridden to force a song)
     VB_OVERRIDE_OCARINA_STAFF_STATE,
+
+    // #### `result`
+    // ```c
+    // player->stateFlags3 & PLAYER_STATE3_10000000
+    // ```
+    // #### `args`
+    // - `*EnOwl`
+    VB_OWL_DESPAWN_FEATHER,
 
     // #### `result`
     // ```c
